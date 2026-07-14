@@ -293,7 +293,12 @@ class Namespace:
             if row >= topline:
               rows_so_far += math.floor((m_col - start_col) / width)
         else:
-          m_col = max_col if max_col < text_ln else text_ln
+          # max_col is measured in screen columns but text_ln is a byte count
+          # (text was encoded to UTF-8 above). Comparing them with < truncates
+          # multi-byte lines whose byte count exceeds the visible width in cols,
+          # leaving the tail of the line un-faded. Always iterate the full byte
+          # range; matchaddpos ignores positions outside the visible window.
+          m_col = text_ln
           s_col = start_col
           rows_so_far += 1
         t1 = text[0:s_col]
